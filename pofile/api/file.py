@@ -9,7 +9,7 @@
 #############################################
 from pofile.core.FileType import MainFile
 from pofile.core.SearchByContentType import MainSearchByContent
-
+import search4file
 mainFile = MainFile()
 mainSearchByContent = MainSearchByContent()
 
@@ -22,8 +22,8 @@ def replace4filename(path, del_content, replace_content=None):
 
 # todo：输入文件路径
 # @except_dec()
-def search_by_content(search_path, content):  # 定义 search() 函数，传入 "path" 文件路径， "target" 要查找的目标文件
-    mainSearchByContent.search_by_content(search_path, content)
+def search_by_content(search_path, search_content):  # 定义 search() 函数，传入 "path" 文件路径， "target" 要查找的目标文件
+    search4file.search_by_content(search_path, search_content)
 
 
 # author：https://github.com/CoderWanFeng/python-office/pull/72
