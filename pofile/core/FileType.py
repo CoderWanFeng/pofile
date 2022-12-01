@@ -1,9 +1,11 @@
 import os
+import zipfile
+
+import requests
 from alive_progress import alive_bar
 
 import pathlib
 import openpyxl
-
 
 
 class MainFile():
@@ -121,7 +123,7 @@ class MainFile():
         else:
             print("请输入文件夹路径")
 
-    def output_file_list_to_excel(self,dir_path: str):
+    def output_file_list_to_excel(self, dir_path: str):
         """
         :param dir_path: 需要生成文件列表的目录
         """
@@ -137,3 +139,53 @@ class MainFile():
             output_excel.save(dir_path.joinpath("本目录文件列表.xlsx"))
         else:
             print("请输入正确的文件路径！")
+
+    # 清空指定目录
+    def del_dirs(self, dir_path):
+        for root, dirs, files in os.walk(dir_path, topdown=False):
+            # 删除文件
+            for name in files:
+                os.remove(os.path.join(root, name))  # 删除文件
+            # 删除空文件夹
+            for name in dirs:
+                os.rmdir(os.path.join(root, name))  # 删除一个空目录
+
+    # 压缩指定目录的文件
+    def zip_dir(self, dir_path):
+        comp_file = zipfile.ZipFile(str(dir_path), 'w')  # 文件的压缩
+        for dirpath, dirnames, filenames in os.walk(dir_path):
+            print(dirpath, dirnames, filenames)
+            for filename in filenames:
+                comp_file.write(os.path.join(dirpath, filename), compress_type=zipfile.ZIP_DEFLATED)
+
+    def urldownload(self, url, filename, dirname):
+        """
+        下载文件到指定目录
+        :param url: 文件下载的url
+        :param filename: 要存放的文件名，例如：./test.xls
+        :param dirname: 要存放的文件夹名，以设备id为名称
+        :return:
+        """
+        filedir = self.temp_dir + dirname + '/'  # 每个设备id，存一个文件夹
+        down_res = requests.get(url)  # 下载内容
+        # 判断文件夹是否存在，不存在则创建
+        if not os.path.exists(filedir):
+            os.makedirs(filedir)
+        # 存储下载的文件
+        with open(filedir + filename, 'wb') as file:
+            file.write(down_res.content)
+
+    def add_line_by_type(self, add_line_dict, file_path, file_type, output_path):
+        for root, dirs, files in os.walk(file_path):
+            # root 表示当前访问的文件夹路径
+            # dirs 表示该文件夹下的子目录名list
+            # files 表示该文件夹下的文件list
+            # 遍历文件
+            for f in files:
+                if str(f).endswith(file_type):
+                    f = os.path.join(root, f)
+                    for line_num in range(0, len(add_line_dict)):
+                        with open(f, 'r') as original: data = original.read()
+                        line_num_str = add_line_dict.get(line_num + 1)
+                        with open(f, 'w') as modified: modified.write(str(line_num_str) + '\n' + data)
+        print(f'【{file_path}】文件夹内，所有后缀为【{file_type}】的文件，都已修改完毕')

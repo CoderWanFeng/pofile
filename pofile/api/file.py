@@ -10,6 +10,7 @@
 from pofile.core.FileType import MainFile
 from pofile.core.SearchByContentType import MainSearchByContent
 import search4file
+
 mainFile = MainFile()
 mainSearchByContent = MainSearchByContent()
 
@@ -53,3 +54,7 @@ def search_specify_type_file(file_path, file_type):
 # @except_dec()
 def output_file_list_to_excel(dir_path):
     mainFile.output_file_list_to_excel(dir_path)
+
+
+def add_line_by_type(add_line_dict: dict, file_path, file_type='.py', output_path=r'add_line'):
+    mainFile.add_line_by_type(add_line_dict, file_path, file_type, output_path)
