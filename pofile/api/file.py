@@ -10,6 +10,8 @@
 from pofile.core.FileType import MainFile
 from pofile.core.SearchByContentType import MainSearchByContent
 import search4file
+import os
+import shutil
 
 mainFile = MainFile()
 mainSearchByContent = MainSearchByContent()
@@ -58,3 +60,23 @@ def output_file_list_to_excel(dir_path):
 
 def add_line_by_type(add_line_dict: dict, file_path, file_type='.py', output_path=r'add_line'):
     mainFile.add_line_by_type(add_line_dict, file_path, file_type, output_path)
+
+
+def group_by_name(path):
+    """
+    根据后缀名，整理文件
+    :param path:
+    :return:
+    """
+    files = os.listdir(path)
+
+    for f in files:
+        if os.path.isfile(f) and not f.startswith('.'):
+            folder_name = os.path.splitext(f)[-1]
+            folder_name = folder_name.split(".")[-1]
+            print(folder_name)
+            if not os.path.exists(folder_name):
+                os.mkdir(folder_name)
+                shutil.copy(f, folder_name)
+            else:
+                shutil.copy(f, folder_name)
