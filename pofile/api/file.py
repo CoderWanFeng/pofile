@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
+from poprogress import simple_progress
 
 #############################################
 # File Name: 文件.py
@@ -12,6 +13,7 @@ from pofile.core.SearchByContentType import MainSearchByContent
 import search4file
 import os
 import shutil
+from pathlib import Path
 
 mainFile = MainFile()
 mainSearchByContent = MainSearchByContent()
@@ -62,21 +64,42 @@ def add_line_by_type(add_line_dict: dict, file_path, file_type='.py', output_pat
     mainFile.add_line_by_type(add_line_dict, file_path, file_type, output_path)
 
 
-def group_by_name(path):
+def group_by_name(path, output_path, del_old_file):
     """
     根据后缀名，整理文件
     :param path:
     :return:
     """
-    files = os.listdir(path)
-
-    for f in files:
-        if os.path.isfile(f) and not f.startswith('.'):
-            folder_name = os.path.splitext(f)[-1]
-            folder_name = folder_name.split(".")[-1]
-            print(folder_name)
-            if not os.path.exists(folder_name):
-                os.mkdir(folder_name)
-                shutil.copy(f, folder_name)
+    abs_input_path = Path(path).absolute()  # 相对路径→绝对路径
+    if output_path:
+        abs_output_path = Path(output_path).absolute()
+    else:
+        abs_output_path = abs_input_path  # 默认整理结果放在当前文件夹下
+    for file in abs_input_path.iterdir():
+        if file.is_file() and not file.name.startswith('.'):
+            file_extension = file.suffix.split(".")[-1]  # 扩展名
+            current_dile_dir = abs_output_path / file_extension
+            if Path(current_dile_dir).exists():
+                shutil.copy(file, current_dile_dir)  # 复制，不删除源文件
             else:
-                shutil.copy(f, folder_name)
+                Path.mkdir(current_dile_dir)
+                shutil.copy(file, current_dile_dir)
+
+
+def get_files(path: str, name: str = '', suffix: str = None, sub: bool = False, level: int = 0) -> list:  # TODO：全面支持正则
+    """
+        获取指定路径下的所有文件
+    :param path: 必填，指定路径
+    :param name: 可以不填，名字中包含的内容
+    :param suffix: 可以不填，指定文件后缀
+    :param sub: 可以不填，是否获取子文件夹内容
+    :param level: 可以不填，获取第几层文件夹的内容
+    :return: 装满文件路径的列表
+    """
+
+    result_file_path_name_list = mainFile.get_files(path=path, name=name, sub=sub, level=level, suffix=suffix)
+    if result_file_path_name_list:
+        print(f'files amount:{len(result_file_path_name_list)}')
+    else:
+        print(f'0 conditional file in {str(Path(path).absolute())}')
+    return result_file_path_name_list

@@ -5,7 +5,7 @@ from pofile import *
 
 class TestFile(unittest.TestCase):
     def test_replace4filename(self):
-        replace4filename(path='./test_files/file/add_fix', del_content='dd', replace_content='pp')
+        replace4filename(path='./test_files/file/add_fix', del_content='测试')
 
     def test_file_name_insert_content(self):
         file_name_insert_content(file_path=r"./test_files/file/add_fix",
@@ -26,3 +26,7 @@ class TestFile(unittest.TestCase):
 
     def test_search_by_content(self):
         search_by_content(search_path=r'D:\download', search_content='程序员晚枫')
+
+    def test_get_files(self):
+        files = get_files(path=r'C:\Users\Lenovo\Desktop\temp\test\test\awesome-python-framework\14、微博爬虫',name='pfdasfds')
+        print(files)

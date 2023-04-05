@@ -2,15 +2,17 @@ import os
 import zipfile
 
 import requests
-from alive_progress import alive_bar
 
 import pathlib
 import openpyxl
+from poprogress import simple_progress
+
+from pathlib import Path
 
 
 class MainFile():
 
-    def replace4filename(self, path, del_content, replace_content):
+    def replace4filename(self, path: str, del_content: str, replace_content: str = None, sub=False, level=0):
         """
         :param path: 需要替换的文件夹路径
         :param del_content: 需要删除/替换的内容
@@ -18,20 +20,17 @@ class MainFile():
         :return:
         """
         # 获取该目录下所有文件，存入列表中；不包含子文件夹
-        fileList = os.listdir(path)
-        work_count = 0
-        with alive_bar(len(fileList)) as bar:
-            for old_file_name in fileList:  # 依次读取该路径下的文件名
-                bar()  # 进度条
-                if del_content in old_file_name:
-
-                    if replace_content:
-                        new_file_name = old_file_name.replace(del_content, replace_content)
-                    else:
-                        new_file_name = old_file_name.replace(del_content, '')
-                    os.rename(path + os.sep + old_file_name, path + os.sep + new_file_name)
-                    work_count = work_count + 1
-        print("当前目录下，共有{}个文件/文件夹，本次运行共进行了{}个文件/文件夹的重命名".format(len(fileList), work_count))
+        fileList = self.get_files(str(Path(path).absolute()), name=del_content, sub=sub, level=level)
+        file_amonut = 0
+        if fileList:
+            for old_file_name in simple_progress(fileList):  # 依次读取该路径下的文件名
+                abs_old_file_path = Path(old_file_name)
+                if not replace_content:
+                    replace_content = ''
+                new_file_name = abs_old_file_path.name.replace(del_content, replace_content)
+                abs_old_file_path.rename(abs_old_file_path.parent / new_file_name)
+                file_amonut = file_amonut + 1
+        print(f"本次运行共进行了{file_amonut}个文件/文件夹的重命名")
 
     # @time_count_dec
     def file_name_insert_content(self, file_path, insert_position: int, insert_content: str):
@@ -44,7 +43,7 @@ class MainFile():
         Path = pathlib.Path(file_path).resolve()
         if Path.is_dir():
             FileNameList = list(Path.glob("*"))  # 获取该路径下的文件列表
-            for FileName in FileNameList:
+            for FileName in simple_progress(FileNameList):
                 if FileName.is_file():  # 判断是否为文件，只对文件进行操作
                     FileNameExtension = "".join(list(FileName.suffixes))
                     FileNameRoot = FileName.name.replace(FileNameExtension, "")
@@ -70,7 +69,7 @@ class MainFile():
         Path = pathlib.Path(file_path).resolve()
         if Path.is_dir():
             FileNameList = list(Path.glob("*"))  # 获取该路径下的文件列表
-            for FileName in FileNameList:
+            for FileName in simple_progress(FileNameList):
                 if FileName.is_file():  # 判断是否为文件，只对文件进行操作
                     NewFileName = prefix_content + FileName.name  # 合并文件名
                     if not Path.joinpath(NewFileName).is_file():
@@ -90,7 +89,7 @@ class MainFile():
         Path = pathlib.Path(file_path).resolve()
         if Path.is_dir():
             FileNameList = list(Path.glob("*"))  # 获取该路径下的文件列表
-            for FileName in FileNameList:
+            for FileName in simple_progress(FileNameList):
                 if FileName.is_file():  # 判断是否为文件，只对文件进行操作
                     FileNameExtension = "".join(list(FileName.suffixes))
                     FileNameRoot = FileName.name.replace(FileNameExtension, "")
@@ -114,7 +113,7 @@ class MainFile():
         file_path = pathlib.Path(file_path).resolve()
         if file_path.is_dir():
             file_name_list = list(file_path.glob("**/*"))  # 获取该路径下的文件列表
-            for file_name in file_name_list:
+            for file_name in simple_progress(file_name_list):
                 file_name_extension = "".join(list(file_name.suffixes))
                 if file_name_extension == file_type:
                     print(f"{file_name.name}，{file_name.parent}")
@@ -133,7 +132,7 @@ class MainFile():
             output_excel = openpyxl.Workbook()
             output_excel_sheet = output_excel.active
             output_excel_sheet.append(["完整路径", "文件所在路径", "文件名"])
-            for file_path in dir_path_list:
+            for file_path in simple_progress(dir_path_list):
                 if file_path.is_file():
                     output_excel_sheet.append([str(file_path), str(file_path.parent), str(file_path.name)])
             output_excel.save(dir_path.joinpath("本目录文件列表.xlsx"))
@@ -153,7 +152,7 @@ class MainFile():
     # 压缩指定目录的文件
     def zip_dir(self, dir_path):
         comp_file = zipfile.ZipFile(str(dir_path), 'w')  # 文件的压缩
-        for dirpath, dirnames, filenames in os.walk(dir_path):
+        for dirpath, dirnames, filenames in simple_progress(os.walk(dir_path)):
             print(dirpath, dirnames, filenames)
             for filename in filenames:
                 comp_file.write(os.path.join(dirpath, filename), compress_type=zipfile.ZIP_DEFLATED)
@@ -176,7 +175,7 @@ class MainFile():
             file.write(down_res.content)
 
     def add_line_by_type(self, add_line_dict, file_path, file_type, output_path):
-        for root, dirs, files in os.walk(file_path):
+        for root, dirs, files in simple_progress(os.walk(file_path)):
             # root 表示当前访问的文件夹路径
             # dirs 表示该文件夹下的子目录名list
             # files 表示该文件夹下的文件list
@@ -189,3 +188,25 @@ class MainFile():
                         line_num_str = add_line_dict.get(line_num + 1)
                         with open(f, 'w') as modified: modified.write(str(line_num_str) + '\n' + data)
         print(f'【{file_path}】文件夹内，所有后缀为【{file_type}】的文件，都已修改完毕')
+
+    def get_files(self, path, sub, level, suffix, name):
+        result_file_path_name_list = []  # 指定路径下，待转换的docx文件。如果是目录，不递归
+        abs_input_path = Path(path).absolute()
+        # 如果不存在，则不做处理
+        if not abs_input_path.exists():
+            print("path does not exist path = " + path)
+            return
+        # 判断是否是文件
+        elif abs_input_path.is_file():
+            result_file_path_name_list.append(str(path))
+        # 如果是目录，则遍历目录下面的文件
+        elif abs_input_path.is_dir():
+            for dirpath, _, filenames in simple_progress(os.walk(str(abs_input_path)),
+                                                         desc='collecting conditional files：'):
+                for filename in filenames:
+                    file_path_name = os.path.join(dirpath, filename)
+                    if name == '' and not suffix:
+                        result_file_path_name_list.append(file_path_name)
+                    elif filename.find(name) or Path(file_path_name).suffix == suffix:
+                        result_file_path_name_list.append(file_path_name)
+        return result_file_path_name_list
