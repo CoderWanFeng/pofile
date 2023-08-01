@@ -1,36 +1,53 @@
 import os
-import zipfile
-
-import requests
-
 import pathlib
+import zipfile
+from pathlib import Path
+
 import openpyxl
 from poprogress import simple_progress
 
-from pathlib import Path
+
+# import requests
 
 
 class MainFile():
 
-    def replace4filename(self, path: str, del_content: str, replace_content: str = None, sub=False, level=0):
+    def replace4filename(self, path: str, del_content: str, replace_content: str = '', dir_rename: bool = True,
+                         file_rename: bool = True, suffix=None):
         """
         :param path: 需要替换的文件夹路径
         :param del_content: 需要删除/替换的内容
         :param replace_content: 替换后的内容，可以不填 = 直接删除
         :return:
         """
-        # 获取该目录下所有文件，存入列表中；不包含子文件夹
-        fileList = self.get_files(str(Path(path).absolute()), name=del_content, sub=sub, level=level)
-        file_amonut = 0
-        if fileList:
-            for old_file_name in simple_progress(fileList):  # 依次读取该路径下的文件名
-                abs_old_file_path = Path(old_file_name)
-                if not replace_content:
-                    replace_content = ''
-                new_file_name = abs_old_file_path.name.replace(del_content, replace_content)
-                abs_old_file_path.rename(abs_old_file_path.parent / new_file_name)
-                file_amonut = file_amonut + 1
-        print(f"本次运行共进行了{file_amonut}个文件/文件夹的重命名")
+        pre_list = []
+        # file_amonut = 0
+        for root, dirs, files in os.walk(path):
+            for dir in dirs:
+                dir_path = Path(os.path.join(root, dir)).absolute()
+                pre_list.append(dir_path)
+            for file in files:
+                file_path = Path(os.path.join(root, file)).absolute()
+                pre_list.append(file_path)
+        sub = 0
+        for _ in range(len(pre_list)):
+            for root, dirs, files in os.walk(path):
+                sub += 1
+                if dir_rename:
+                    for dir in dirs:
+                        dir_path = Path(os.path.join(root, dir)).absolute()
+                        new_dir_name = dir_path.name.replace(del_content, replace_content)
+                        dir_path.rename(dir_path.parent / new_dir_name)
+                if file_rename:
+                    for file in files:
+                        file_path = Path(os.path.join(root, file)).absolute()
+                        if suffix == None:
+                            new_file_name = file_path.name.replace(del_content, replace_content)
+                            file_path.rename(file_path.parent / new_file_name)
+                        if suffix != None and file_path.suffix == suffix:
+                            new_file_name = file_path.name.replace(del_content, replace_content)
+                            file_path.rename(file_path.parent / new_file_name)
+                continue
 
     # @time_count_dec
     def file_name_insert_content(self, file_path, insert_position: int, insert_content: str):
@@ -157,22 +174,22 @@ class MainFile():
             for filename in filenames:
                 comp_file.write(os.path.join(dirpath, filename), compress_type=zipfile.ZIP_DEFLATED)
 
-    def urldownload(self, url, filename, dirname):
-        """
-        下载文件到指定目录
-        :param url: 文件下载的url
-        :param filename: 要存放的文件名，例如：./test.xls
-        :param dirname: 要存放的文件夹名，以设备id为名称
-        :return:
-        """
-        filedir = self.temp_dir + dirname + '/'  # 每个设备id，存一个文件夹
-        down_res = requests.get(url)  # 下载内容
-        # 判断文件夹是否存在，不存在则创建
-        if not os.path.exists(filedir):
-            os.makedirs(filedir)
-        # 存储下载的文件
-        with open(filedir + filename, 'wb') as file:
-            file.write(down_res.content)
+    # def urldownload(self, url, filename, dirname):
+    #     """
+    #     下载文件到指定目录
+    #     :param url: 文件下载的url
+    #     :param filename: 要存放的文件名，例如：./test.xls
+    #     :param dirname: 要存放的文件夹名，以设备id为名称
+    #     :return:
+    #     """
+    #     filedir = self.temp_dir + dirname + '/'  # 每个设备id，存一个文件夹
+    #     down_res = requests.get(url)  # 下载内容
+    #     # 判断文件夹是否存在，不存在则创建
+    #     if not os.path.exists(filedir):
+    #         os.makedirs(filedir)
+    #     # 存储下载的文件
+    #     with open(filedir + filename, 'wb') as file:
+    #         file.write(down_res.content)
 
     def add_line_by_type(self, add_line_dict, file_path, file_type, output_path):
         for root, dirs, files in simple_progress(os.walk(file_path)):
@@ -198,6 +215,7 @@ class MainFile():
             return
         # 判断是否是文件
         elif abs_input_path.is_file():
+            path = Path(path).absolute()
             result_file_path_name_list.append(str(path))
         # 如果是目录，则遍历目录下面的文件
         elif abs_input_path.is_dir():
@@ -207,6 +225,6 @@ class MainFile():
                     file_path_name = os.path.join(dirpath, filename)
                     if name == '' and not suffix:
                         result_file_path_name_list.append(file_path_name)
-                    elif filename.find(name) or Path(file_path_name).suffix == suffix:
+                    elif name in filename or Path(file_path_name).suffix == suffix:
                         result_file_path_name_list.append(file_path_name)
         return result_file_path_name_list
