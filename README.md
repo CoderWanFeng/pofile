@@ -27,10 +27,13 @@ pip install -i https://mirrors.aliyun.com/pypi/simple/ pofile -U
 
 ## 📝功能
 
-| 名称         | 说明           | 演示代码                                                               |
-|------------|--------------|--------------------------------------------------------------------|
-| replace4filename | 批量修改文件/文件夹名称 | [查看](https://github.com/CoderWanFeng/pofile/demo/1、批量修改文件（文件夹）.py) | 
-
+| 方法名            | 功能               | 视频（文档）                                              | 演示代码                                                    |
+| ----------------- | ------------------ | --------------------------------------------------------- | ----------------------------------------------------------- |
+| replace4filename  | 批量重命名         | [视频](https://www.bilibili.com/video/BV12r4y187Yj)       | [源码](https://github.com/CoderWanFeng/python-office/blob/master/demo/pofile/%E6%89%B9%E9%87%8F%E9%87%8D%E5%91%BD%E5%90%8D.py)   |
+| search_by_content | 根据内容，查找文件 | [视频](https://www.bilibili.com/video/BV13P411n77G)       | [源码](https://github.com/CoderWanFeng/python-office/blob/master/demo/pofile/%E6%A0%B9%E6%8D%AE%E5%86%85%E5%AE%B9%EF%BC%8C%E6%9F%A5%E6%89%BE%E6%96%87%E4%BB%B6.py)   |
+| group_by_name     | 自动整理文件         | [文档](https://mp.weixin.qq.com/s/AVFttFz-IjZD1Ra3K-580A) | [源码](https://github.com/CoderWanFeng/python-office/blob/master/demo/pofile/%E8%87%AA%E5%8A%A8%E6%95%B4%E7%90%86%E6%96%87%E4%BB%B6%E5%A4%B9.py)   |
+| get_files         | 获取文件列表         | [视频](https://www.bilibili.com/video/BV1ua4y1M7ya)       | [源码](https://github.com/CoderWanFeng/python-office/blob/master/demo/pofile/%E6%89%B9%E9%87%8F%E8%8E%B7%E5%8F%96%E6%96%87%E4%BB%B6%E5%88%97%E8%A1%A8.py) |
+| mkdir             | 新建文件夹         | [视频](https://www.bilibili.com/video/BV1ua4y1M7ya)       | [源码](https://github.com/CoderWanFeng/python-office/blob/master/demo/pofile/%E6%96%B0%E5%BB%BA%E6%96%87%E4%BB%B6%E5%A4%B9.py) |
 #### 相关资料：
 
 - [📘官网：https://www.python-office.com/](https://www.python-office.com/)
