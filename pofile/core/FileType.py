@@ -228,3 +228,21 @@ class MainFile():
                     elif name in filename or Path(file_path_name).suffix == suffix:
                         result_file_path_name_list.append(file_path_name)
         return result_file_path_name_list
+
+    def zip4dir(self, path):
+        base_path_list = os.listdir(path)
+        for base_path_list_one in simple_progress(base_path_list):
+            start_dir = os.path.join(path, base_path_list_one)
+            # 子目录
+            print("正在压缩的子目录", start_dir)
+            if os.path.isdir(start_dir):
+                # zip_yasuo(start_dir)
+                file_news = start_dir + '.zip'
+                if not os.path.isfile(file_news):
+                    z = zipfile.ZipFile(file_news, 'w', zipfile.ZIP_DEFLATED)
+                    for dir_path, dir_names, file_names in os.walk(start_dir):
+                        file_path = dir_path.replace(start_dir, '')
+                        file_path = file_path and file_path + os.sep or ''
+                        for filename in file_names:
+                            z.write(os.path.join(dir_path, filename), file_path + filename)
+                    z.close()

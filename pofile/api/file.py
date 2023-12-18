@@ -95,6 +95,10 @@ def mkdir(path) -> bool and str:
     return exist, str(Path(path).absolute()).strip()
 
 
+def zip4dir(path: str) -> None:
+    mainFile.zip4dir(path)
+
+
 # author：https://github.com/CoderWanFeng/python-office/pull/72
 # @except_dec()
 def file_name_insert_content(file_path, insert_position: int, insert_content: str):
