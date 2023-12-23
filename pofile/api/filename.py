@@ -21,3 +21,17 @@ def check_suffix(file_name: str, suffix_list: list) -> bool:
             in_suffix_list = True
             break
     return in_suffix_list
+
+
+def fix_unsaved_char(file_name: str) -> str:
+    """
+    修复文件名中有未保存的字符
+    :param file_name: 文件名
+    :return: 修复后的文件名
+    """
+    invalid_character = r'<>:"/\|?* '
+    for char in invalid_character:
+        file_name = file_name.replace(char, '_')
+    return file_name.replace('?', '_').replace('*', '_').replace('"', '_').replace(':', '_').replace('<', '_').replace(
+        '>', '_').replace('/', '_').replace('\\', '_').replace('|', '_').replace('?', '_').replace('"', '_').replace(
+        ':', '_')
