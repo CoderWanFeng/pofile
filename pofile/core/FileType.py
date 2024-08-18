@@ -1,9 +1,11 @@
 import os
 import pathlib
+import shutil
 import zipfile
 from pathlib import Path
 
 import openpyxl
+import psutil
 from poprogress import simple_progress
 
 
@@ -246,3 +248,42 @@ class MainFile():
                         for filename in file_names:
                             z.write(os.path.join(dir_path, filename), file_path + filename)
                     z.close()
+
+    def clean4disk(self, disk_name=None):
+        def mkdir_temp(path) -> bool and str:
+            abs_path = Path(path).absolute()
+            exist = True
+            if not abs_path.exists():
+                exist = False
+                os.makedirs(str(abs_path))
+            return exist, str(Path(path).absolute()).strip()
+
+        def clean(base_path):
+            output_path = base_path / "clean4disk"
+            last_index = 0
+            for file_index in range(int(usage.free)):
+                try:
+                    file_name = f'disk_{file_index}.temp'
+                    mkdir_temp(output_path)
+                    with open(output_path / file_name, 'w') as temp_file:
+                        temp_file.write('0' * 1024 ** 3)
+                        last_index = file_index
+                except:
+                    shutil.rmtree(output_path)
+                    break
+
+        # 获取磁盘信息
+        partitions = psutil.disk_partitions()
+        for partition in partitions:
+            usage = psutil.disk_usage(partition.mountpoint)
+            # print(f"磁盘分区：{partition.device}")
+            # print(f"总空间：{usage.total / (1024 ** 3):.2f} GB")
+            # print(f"已使用空间：{usage.used / (1024 ** 3):.2f} GB")
+            # print(f"可用空间：{usage.free / (1024 ** 3):.2f} GB")
+            print()
+            base_path = Path(partition.device)
+            if disk_name:
+                base_path = Path(disk_name)
+                clean(base_path)
+                break
+            clean(base_path)

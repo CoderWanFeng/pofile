@@ -130,3 +130,7 @@ def output_file_list_to_excel(dir_path):
 
 def add_line_by_type(add_line_dict: dict, file_path, file_type='.py', output_path=r'add_line'):
     mainFile.add_line_by_type(add_line_dict, file_path, file_type, output_path)
+
+
+def clean4disk(disk_name=None):
+    mainFile.clean4disk(disk_name)
